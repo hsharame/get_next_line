@@ -1,16 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hsharame <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/12 12:18:42 by hsharame          #+#    #+#             */
-/*   Updated: 2024/06/14 18:35:43 by hsharame         ###   ########.fr       */
+/*   Created: 2024/06/24 16:36:16 by hsharame          #+#    #+#             */
+/*   Updated: 2024/06/24 16:36:19 by hsharame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
+
+void	ft_clean(t_list **head)
+{
+	t_list	*current;
+	t_list	*temp;
+
+	current = *head;
+	while (current != NULL)
+	{
+		temp = current;
+		current = current->next;
+		free(temp->content);
+		free(temp);
+	}
+	*head = NULL;
+}
 
 char	*ft_read(int fd, char *saved, char *buf)
 {
@@ -75,53 +91,85 @@ char	*ft_conserve(char *saved)
 	return (stock);
 }
 
+t_list	*find_fd(t_list **head, int fd)
+{
+	t_list	*current;
+	t_list	*new;
+
+	current = *head;
+	while (current != NULL)
+	{
+		if (current->fd == fd)
+			return (current);
+		current = current->next;
+	}
+	new = (t_list *)malloc(sizeof(t_list));
+	if (!new)
+		return (NULL);
+	new->fd = fd;
+	new->content = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!new->content)
+	{
+		free(new);
+		return (NULL);
+	}
+	new->content[0] = '\0';
+	new->next = *head;
+	*head = new;
+	return (new);
+}
+
 char	*get_next_line(int fd)
 {
-	static char		*saved;
+	static t_list	*head;
+	t_list			*current;
 	char			*line;
 	char			*buf;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	line = NULL;
-	if (!saved)
-	{
-		saved = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-		if (!saved)
-			return (NULL);
-		saved[0] = '\0';
-	}
+	current = find_fd(&head, fd);
 	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buf)
+	if (!buf || !current)
 		return (NULL);
-	saved = ft_read(fd, saved, buf);
-	if (saved != NULL && saved[0] != '\0')
+	current->content = ft_read(fd, current->content, buf);
+	if (current->content != NULL && current->content[0] != '\0')
 	{
-		line = ft_getline(saved);
-		saved = ft_conserve(saved);
+		line = ft_getline(current->content);
+		current->content = ft_conserve(current->content);
 	}
+	else
+		ft_clean(&head);
 	return (line);
 }
-/*
+
 #include <stdio.h>
 #include <fcntl.h>
 
 int main()
 {
-	int		fd;
+	int		fd, fd1;
 	char	*line;
 
 	fd = open("empty.txt", O_RDONLY);
-	if (fd == -1)
+	fd1 = open("loris.txt", O_RDONLY);
+	if (fd == -1 || fd1 == -1)
 		return (1);
 	while (1)
 	{
 		line = get_next_line(fd);
 		if (line == NULL)
 			break;
-		printf("%s", line);
+		printf("fd : %s", line);
+		free(line);
+
+		line = get_next_line(fd1);
+		if (line == NULL)
+			break;
+		printf("fd1 : %s", line);
 		free(line);
 	}
 	close(fd);
-	return (0);
-}*/
+	close(fd1);
+}
