@@ -12,28 +12,29 @@
 
 #include "get_next_line_bonus.h"
 
-size_t	ft_strlen(const char *s)
+size_t	ft_strlen_newline(const char *s, int new)
 {
 	size_t	i;
 
 	i = 0;
-	while (s[i] != '\0')
-		i++;
-	return (i);
-}
-
-int	ft_newline(const char *saved)
-{
-	char	*ptr;
-
-	ptr = (char *)saved;
-	while (*ptr)
+	if (s == NULL)
+		return (0);
+	if (new)
 	{
-		if (*ptr == '\n')
-			return (1);
-		ptr++;
+		while (s[i])
+		{
+			if (s[i] == '\n')
+				return (1);
+			i++;
+		}
+		return (0);
 	}
-	return (0);
+	else
+	{
+		while (s[i] != '\0')
+			i++;
+		return (i);
+	}
 }
 
 char	*ft_strjoin(char const *s1, char const *s2)
@@ -43,8 +44,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	size_t	n;
 	char	*result;
 
-	i = ft_strlen(s1);
-	j = ft_strlen(s2);
+	i = ft_strlen_newline(s1, 0);
+	j = ft_strlen_newline(s2, 0);
 	result = (char *)malloc(sizeof(char) * (i + j + 1));
 	if (!result || !s1 || !s2)
 		return (NULL);
@@ -87,7 +88,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	char	*result;
 	size_t	length;
 
-	length = ft_strlen(s);
+	length = ft_strlen_newline(s, 0);
 	if (start >= length || length == 0)
 	{
 		result = (char *)malloc(sizeof(char) * 1);
@@ -104,4 +105,20 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	ft_memcpy(result, s + start, len);
 	result[len] = '\0';
 	return (result);
+}
+
+char	*ft_getline(char *saved)
+{
+	char	*line;
+	size_t	j;
+
+	j = 0;
+	while (saved[j] != '\n' && saved[j] != '\0')
+		j++;
+	if (saved[j] == '\n')
+		j++;
+	line = ft_substr(saved, 0, j);
+	if (!line)
+		return (NULL);
+	return (line);
 }

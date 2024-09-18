@@ -12,20 +12,24 @@
 
 #include "get_next_line_bonus.h"
 
-void	ft_clean(t_list **head)
+void	ft_clean(t_list **head, t_list *current)
 {
-	t_list	*current;
 	t_list	*temp;
 
-	current = *head;
-	while (current != NULL)
+	if (*head == NULL || current == NULL)
+		return ;
+	if (current == *head)
+		*head = (*head)->next;
+	else
 	{
-		temp = current;
-		current = current->next;
-		free(temp->content);
-		free(temp);
+		temp = *head;
+		while (temp != NULL && temp->next != current)
+			temp = temp->next;
+		if (temp != NULL)
+			temp->next = current->next;
 	}
-	*head = NULL;
+	free(current->content);
+	free(current);
 }
 
 char	*ft_read(int fd, char *saved, char *buf)
@@ -34,13 +38,13 @@ char	*ft_read(int fd, char *saved, char *buf)
 	ssize_t	octets;
 
 	octets = 1;
-	while (!ft_newline(saved))
+	while (!ft_strlen_newline(saved, 1))
 	{
 		octets = read(fd, buf, BUFFER_SIZE);
 		if (octets <= 0)
 		{
 			free(buf);
-			if (octets < 0 || saved[0] == '\0')
+			if (octets < 0 || saved == NULL || saved[0] == '\0')
 			{
 				free(saved);
 				return (NULL);
@@ -56,22 +60,6 @@ char	*ft_read(int fd, char *saved, char *buf)
 	return (saved);
 }
 
-char	*ft_getline(char *saved)
-{
-	char	*line;
-	size_t	j;
-
-	j = 0;
-	while (saved[j] != '\n' && saved[j] != '\0')
-		j++;
-	if (saved[j] == '\n')
-		j++;
-	line = ft_substr(saved, 0, j);
-	if (!line)
-		return (NULL);
-	return (line);
-}
-
 char	*ft_conserve(char *saved)
 {
 	int		i;
@@ -83,7 +71,7 @@ char	*ft_conserve(char *saved)
 		i++;
 	if (saved[i] == '\n')
 		i++;
-	length = ft_strlen(saved) - i;
+	length = ft_strlen_newline(saved, 0) - i;
 	stock = ft_substr(saved, i, length);
 	if (!stock)
 		return (NULL);
@@ -140,10 +128,10 @@ char	*get_next_line(int fd)
 		current->content = ft_conserve(current->content);
 	}
 	else
-		ft_clean(&head);
+		ft_clean(&head, current);
 	return (line);
 }
-
+/*
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -153,9 +141,21 @@ int main()
 	char	*line;
 
 	fd = open("empty.txt", O_RDONLY);
-	fd1 = open("loris.txt", O_RDONLY);
+	fd1 = open("1char.txt", O_RDONLY);
 	if (fd == -1 || fd1 == -1)
 		return (1);
+	line = get_next_line(fd);
+	printf("fd : %s", line);
+	free(line);
+	line = get_next_line(1000);
+	printf("fd1 : %s\n", line);
+	free(line);
+	line = get_next_line(fd);
+	printf("fd : %s", line);
+	free(line);
+		line = get_next_line(fd);
+	printf("fd : %s", line);
+	free(line);
 	while (1)
 	{
 		line = get_next_line(fd);
@@ -172,4 +172,4 @@ int main()
 	}
 	close(fd);
 	close(fd1);
-}
+}*/

@@ -6,7 +6,7 @@
 /*   By: hsharame <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/12 12:18:42 by hsharame          #+#    #+#             */
-/*   Updated: 2024/06/14 18:35:43 by hsharame         ###   ########.fr       */
+/*   Updated: 2024/07/31 17:42:17 by hsharame         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ char	*get_next_line(int fd)
 	}
 	return (line);
 }
-/*
+
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -124,4 +124,4 @@ int main()
 	}
 	close(fd);
 	return (0);
-}*/
+}

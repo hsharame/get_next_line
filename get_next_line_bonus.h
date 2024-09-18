@@ -30,15 +30,14 @@ typedef struct s_list
 
 char	*get_next_line(int fd);
 char	*ft_conserve(char *saved);
-char	*ft_getline(char *saved);
 char	*ft_read(int fd, char *saved, char *buf);
 t_list	*find_fd(t_list **head, int fd);
-void	ft_clean(t_list **head);
+void	ft_clean(t_list **head, t_list *current);
 
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 void	*ft_memcpy(void *dest, const void *src, size_t n);
 char	*ft_strjoin(char const *s1, char const *s2);
-int		ft_newline(const char *saved);
-size_t	ft_strlen(const char *s);
+size_t	ft_strlen_newline(const char *s, int new);
+char	*ft_getline(char *saved);
 
 #endif
